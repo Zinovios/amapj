@@ -16,16 +16,25 @@ public class TransactionHelper
 	private final static Logger logger = Logger.getLogger(TransactionHelper.class.getName());
 	
 	
-	static public TransactionHelper mainInstance = new TransactionHelper();
-	
-	private ThreadLocal<TransactionInfo> threadLocal = new ThreadLocal<TransactionInfo>();
+    public static TransactionHelper mainInstance;
+	private static ThreadLocal<TransactionInfo> threadLocal;
 	
 	private boolean debug = true;
+
+    static {
+	mainInstance = new TransactionHelper();
+	threadLocal = new ThreadLocal<TransactionInfo>();
+	threadLocal.set(TransactionInfo.getInstance());
+    }
 	
 	public static EntityManager getEm()
 	{
 		TransactionInfo transactionInfo = mainInstance.threadLocal.get();
-		return transactionInfo.em;
+		if(transactionInfo == null) {
+		    transactionInfo = TransactionInfo.getInstance();
+		    threadLocal.set(transactionInfo);
+		}
+		return transactionInfo.getEm();
 	}
 	
 	public void start_read()
@@ -35,21 +44,21 @@ public class TransactionHelper
 		//
 		if (transactionInfo==null)
 		{
-			transactionInfo = new TransactionInfo();
-			threadLocal.set(transactionInfo);
+		    transactionInfo = TransactionInfo.getInstance();
+		    threadLocal.set(TransactionInfo.getInstance());
 		}
 		
 		if (debug)
 		{
-			logger.info("nbAppel = "+transactionInfo.nbAppel+" em = "+transactionInfo.em+" transac = "+transactionInfo.transac);
+		    logger.info("nbAppel = "+transactionInfo.getNbAppel() +" em = "+transactionInfo.getEm() +" transac = "+transactionInfo.getTransac());
 		}
 		
 		
-		transactionInfo.nbAppel++;
+		transactionInfo.setNbAppel(transactionInfo.getNbAppel() + 1);
 		
 		// Si c'est le premier appel, on crée une session
 		// Si ce n'est pas le premier appel, il n'y a rien à faire, on reste dans les conditions précédentes
-		if (transactionInfo.nbAppel==1)
+		if (transactionInfo.getNbAppel()==1)
 		{
 			transactionInfo.startSessionLecture();
 		}
@@ -59,11 +68,11 @@ public class TransactionHelper
 	{
 		TransactionInfo transactionInfo = threadLocal.get();
 		
-		transactionInfo.nbAppel--;
+		transactionInfo.setNbAppel(transactionInfo.getNbAppel() - 1);
 		
 		// Si c'est le dernier appel de la stack, alors on ferme le tout
 		// Sinon on ne fait rien
-		if (transactionInfo.nbAppel==0)
+		if (transactionInfo.getNbAppel()==0)
 		{
 			transactionInfo.closeSession(rollback);
 		}
@@ -82,10 +91,10 @@ public class TransactionHelper
 			threadLocal.set(transactionInfo);
 		}
 		
-		transactionInfo.nbAppel++;
+		transactionInfo.setNbAppel(transactionInfo.getNbAppel() - 1);
 		
 		// Si c'est le premier appel , on crée directement une session en écriture
-		if (transactionInfo.nbAppel==1)
+		if (transactionInfo.getNbAppel()==1)
 		{
 			transactionInfo.startSessionEcriture();
 		}
@@ -106,16 +115,16 @@ public class TransactionHelper
 		
 		// Dans le cas d'une exception au commit , dans AspectJ on passe dans returning puis throwing
 		// On se retrouve alors dans ce cas là, ou il ne faut rien faire 
-		if ((rollback==true) && (transactionInfo.nbAppel==0))
+		if ((rollback==true) && (transactionInfo.getNbAppel() == 0))
 		{
 			return ;
 		}
 		
-		transactionInfo.nbAppel--;
+		transactionInfo.setNbAppel(transactionInfo.getNbAppel() - 1);
 		
 		// Si c'est le dernier appel de la stack, alors on ferme le tout
 		// Sinon on ne fait rien
-		if (transactionInfo.nbAppel==0)
+		if (transactionInfo.getNbAppel() == 0)
 		{
 			transactionInfo.closeSession(rollback);
 		}

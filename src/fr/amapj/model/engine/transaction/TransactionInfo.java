@@ -13,16 +13,51 @@ public class TransactionInfo
 {
 	private final static Logger logger = Logger.getLogger(TransactionInfo.class.getName());
 	
+    enum TransactionInfoHolder {
+		INSTANCE;
+	
+		public TransactionInfo createTransaction(){
+		    return new TransactionInfo();
+		}
+    }
+    
+	public static TransactionInfo getInstance() {
+		return TransactionInfoHolder.INSTANCE.createTransaction();
+	}
+
+
 	// Correspond au nombre d'appel de fonction avec des annotations @DbRead, ... (stack d'appel) 
-	public int nbAppel=0;
+	private int nbAppel = 0;
+	private EntityManager em = null;
+	private EntityTransaction transac = null;
 	
-	public EntityManager em=null;
-	
-	public EntityTransaction transac=null;
-	
-	
-	
-	
+	public int getNbAppel() {
+		return nbAppel;
+	}
+
+	public void setNbAppel(int nbAppel) {
+		this.nbAppel = nbAppel;
+	}
+
+	public EntityManager getEm() {
+		return em;
+	}
+
+
+	public void setEm(EntityManager em) {
+		this.em = em;
+	}
+
+
+	public EntityTransaction getTransac() {
+		return transac;
+	}
+
+
+	public void setTransac(EntityTransaction transac) {
+		this.transac = transac;
+	}
+
 	public enum Status
 	{
 		VIDE , LECTURE , ECRITURE ;
@@ -125,9 +160,4 @@ public class TransactionInfo
 		}
 
 	}
-	
-	
-	
-	
-
 }
