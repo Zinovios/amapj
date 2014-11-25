@@ -1,0 +1,22 @@
+<Context>
+
+ <Parameter name="database.type" value="external"  />
+ 
+ <Parameter name="database.external.multi-tenancy" value="on"  />
+ 
+ <Parameter name="database.external.name" value="amap1,amap2"  />
+ 
+ <Parameter name="database.external.url0" value="jdbc:hsqldb:hsql://127.0.0.1/amap1"  />
+ <Parameter name="database.external.user0" value="SA"  />
+ <Parameter name="database.external.password0" value=""  />
+ 
+ <Parameter name="database.external.url1" value="jdbc:hsqldb:hsql://127.0.0.1/amap2"  />
+ <Parameter name="database.external.user1" value="SA"  />
+ <Parameter name="database.external.password1" value=""  />
+ 
+ <Parameter name="pageTitle" value="java"  />
+ 
+<!-- Permet de desactiver la serialisation des sessions-->
+<Manager pathname="" />
+
+</Context>
