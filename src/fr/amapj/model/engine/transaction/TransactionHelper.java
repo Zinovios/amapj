@@ -22,19 +22,18 @@ public class TransactionHelper
 	private boolean debug = true;
 
     static {
-	mainInstance = new TransactionHelper();
-	threadLocal = new ThreadLocal<TransactionInfo>();
-	threadLocal.set(TransactionInfo.getInstance());
+		mainInstance = new TransactionHelper();
+		threadLocal = new ThreadLocal<TransactionInfo>();
+		threadLocal.set(TransactionInfo.getInstance());
     }
 	
 	public static EntityManager getEm()
 	{
-		TransactionInfo transactionInfo = mainInstance.threadLocal.get();
+		TransactionInfo transactionInfo = TransactionHelper.threadLocal.get();
 		if(transactionInfo == null) {
-		    transactionInfo = TransactionInfo.getInstance();
-		    threadLocal.set(transactionInfo);
+		    threadLocal.set(TransactionInfo.getInstance());
 		}
-		return transactionInfo.getEm();
+		return TransactionHelper.threadLocal.get().getEm();
 	}
 	
 	public void start_read()
@@ -42,9 +41,7 @@ public class TransactionHelper
 		TransactionInfo transactionInfo = threadLocal.get();
 		
 		//
-		if (transactionInfo==null)
-		{
-		    transactionInfo = TransactionInfo.getInstance();
+		if(transactionInfo == null) {
 		    threadLocal.set(TransactionInfo.getInstance());
 		}
 		
@@ -85,10 +82,8 @@ public class TransactionHelper
 		TransactionInfo transactionInfo = threadLocal.get();
 		
 		//
-		if (transactionInfo==null)
-		{
-			transactionInfo = new TransactionInfo();
-			threadLocal.set(transactionInfo);
+		if(transactionInfo == null) {
+		    threadLocal.set(TransactionInfo.getInstance());
 		}
 		
 		transactionInfo.setNbAppel(transactionInfo.getNbAppel() - 1);
@@ -107,7 +102,6 @@ public class TransactionHelper
 			}
 		}
 	}
-	
 	
 	public void stop_write(boolean rollback)
 	{
@@ -129,5 +123,4 @@ public class TransactionHelper
 			transactionInfo.closeSession(rollback);
 		}
 	}
-	
 }

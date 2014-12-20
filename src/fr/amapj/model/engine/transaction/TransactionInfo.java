@@ -40,6 +40,9 @@ public class TransactionInfo
 	}
 
 	public EntityManager getEm() {
+		if(em == null){
+			em = DbUtil.createEntityManager();
+		}
 		return em;
 	}
 
@@ -84,7 +87,7 @@ public class TransactionInfo
 	 */
 	public void startSessionLecture()
 	{
-		em = DbUtil.createEntityManager();
+		this.setEm(DbUtil.createEntityManager());
 		transac = null;
 		logger.info("Début d'une transaction en lecture");
 	}	
@@ -94,7 +97,7 @@ public class TransactionInfo
 	 */
 	public void startSessionEcriture()
 	{
-		em = DbUtil.createEntityManager();
+		this.setEm(DbUtil.createEntityManager());
 		transac = em.getTransaction();
 		transac.begin();
 		logger.info("Début d'une transaction en écriture");
